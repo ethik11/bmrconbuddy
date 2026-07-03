@@ -1,0 +1,29 @@
+name: Release
+
+# Publish a GitHub Release with the built userscript whenever a version tag is pushed.
+# Flow: bump "version" in package.json -> commit -> `git tag v1.7.7` -> `git push --tags`.
+# Tampermonkey then auto-updates clients via the @updateURL/@downloadURL in the banner.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write # required to create the release
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            dist/bmr-con-buddy.user.js
+            dist/bmr-con-buddy.meta.js
