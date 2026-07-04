@@ -113,10 +113,19 @@ export function getFeedMessageElement(lineEl: HTMLElement | null): HTMLElement |
   return null;
 }
 
-/** Feed line shape: contains `<time>` plus a message `<div>` (structural, not a type guard). */
+/**
+ * Feed line shape: contains an absolute `<time>` plus a message `<div>` (structural,
+ * not a type guard).
+ *
+ * The `<time>` must be an absolute timestamp. A connected-player row carries a
+ * "Play Time" `<time datetime="PT37M33S">` — an ISO 8601 *duration* — that has the
+ * same time+div shape, so without this guard every player row is mis-detected as a
+ * feed line (confirmed against real Battlemetrics DOM).
+ */
 export function isFeedLineStructure(el: unknown): boolean {
   if (!(el instanceof HTMLElement)) return false;
-  if (!el.querySelector('time')) return false;
+  const timeEl = el.querySelector('time');
+  if (!timeEl || /^P/i.test(timeEl.getAttribute('datetime') || '')) return false;
   return !!getFeedMessageElement(el);
 }
 

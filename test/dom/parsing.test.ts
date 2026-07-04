@@ -98,4 +98,14 @@ describe('feed line detection', () => {
     expect(resolveFeedLineContainer(timeEl.parentElement)).toBe(line);
     expect(getFeedLineText(line)).toBe('Map changed');
   });
+
+  it('does NOT treat a player-row "Play Time" (ISO 8601 duration) as a feed line', () => {
+    // A connected-player row carries <time datetime="PT37M33S"> with the same time+div
+    // shape as a feed line; only its absolute-vs-duration datetime distinguishes them.
+    const row = document.createElement('div');
+    row.innerHTML = `<time datetime="PT37M33.108S">37m</time><div>Nirmata</div>`;
+    document.body.appendChild(row);
+    expect(isFeedLineStructure(row)).toBe(false);
+    expect(resolveFeedLineContainer(row.querySelector('time')!.parentElement)).toBeNull();
+  });
 });
