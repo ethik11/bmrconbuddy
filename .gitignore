@@ -3,6 +3,7 @@ dist/
 *.local
 .DS_Store
 *.log
+.claude/
 
 # Local Battlemetrics page captures used for manual/real-DOM validation (not shipped)
 test.html
