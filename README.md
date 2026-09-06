@@ -5,7 +5,7 @@ A [Tampermonkey](https://www.tampermonkey.net/) userscript for Squad server admi
 reputation chips, colored feed lines, admin-tag name colors, player/feed filters, BM-flag row
 tints, and a profile-page "Copy Player Info" + note-template menu.
 
-> **Version 1.7.6** · MIT · scoped to one server dashboard plus all player profile pages.
+> **Version 1.7.8** · MIT · scoped to one server dashboard plus all player profile pages.
 
 The script is written as small TypeScript modules and bundled into a single `.user.js` with
 [Vite](https://vitejs.dev/) + [vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey).
@@ -18,10 +18,10 @@ Installing it is still just "add one file to Tampermonkey" — the module split 
 | **CBL chips**       | Gradient reputation chip (severity-colored) next to each player, and in the profile header. Cached with a TTL; queued + rate-limited against the CBL GraphQL API.                           |
 | **Feed colors**     | Phrase-based coloring of the live RCON feed and the profile activity log (mod actions, admin actions, team names, team kills, known auto-kick spam). Local-timezone tooltips on timestamps. |
 | **Admin-tag names** | Cyan player name when a BM admin badge/tag is present (list + profile header).                                                                                                              |
-| **Row tints**       | Left-border tint per player row: admin (pink) → sus (orange) → VAC/game ban (red, needs a Steam Web API key).                                                                               |
+| **Row tints**       | Left-border tint per player row: admin (pink) → Problem Player (red) → sus (orange) → VAC/game ban (red, needs a Steam Web API key).                                                        |
 | **Filters**         | Substring or `/regex/flags` filtering of both the player list and the feed.                                                                                                                 |
 | **Highlight rules** | Built-in feed border rules (warn/trigger/kick) plus stored, user-configurable player/feed rules.                                                                                            |
-| **Profile actions** | On the Overview tab: "Copy Player Info" (name/Steam64/EOS/crime/expiry) and a Warn/Kick "Note Menu" that fills the note editor.                                                             |
+| **Profile actions** | On the Overview tab: "Copy Player Info" (name/Steam64/EOS, Crime/Time from the latest ban) and a Warn/Kick "Note Menu" that fills the note editor.                                          |
 
 **Supported pages** (`@match`):
 
@@ -86,7 +86,7 @@ src/
     enhancer.ts           # timestamp tooltips, modal colors, shared reconcile pass
   players/
     admin-tag.ts          # admin-badge detection + cyan name styler
-    flag-styler.ts        # row-tint priority (admin/sus/steam-ban)
+    flag-styler.ts        # row-tint priority (admin/problem/sus/steam-ban)
     filter.ts             # matchesFilter() — shared substring / regex matcher
   highlight/
     rules.ts              # player + feed highlight-rule engine
@@ -102,7 +102,7 @@ src/
     live-feed.ts          # live feed observer + reconcile
   profile/
     scheduler.ts          # profile-page task runner (observer + interval)
-    identifiers.ts        # profile DOM scrapers (h1, tabs, Steam64/EOS/name/note)
+    identifiers.ts        # profile DOM scrapers (h1, tabs, Steam64/EOS/name/ban/note)
     copy-info.ts          # Copy Player Info block
     note-templates.ts     # Warn/Kick note templates + editor fill
     header-cbl.ts         # profile-header CBL chip

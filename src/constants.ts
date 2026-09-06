@@ -29,6 +29,7 @@ export const ADMIN_TAG_NAME_COLOR = '#00fff7';
 /** Row classes for Battlemetrics-derived row tint (cleared before re-apply). */
 export const BM_FLAG_ROW_CLASSES = [
   'bss-toolkit-bmflag-admin',
+  'bss-toolkit-bmflag-problem',
   'bss-toolkit-bmflag-sus',
   'bss-toolkit-bmflag-steam-ban',
 ];

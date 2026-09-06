@@ -3,7 +3,7 @@ import { normalizeWs } from '../dom/parsing';
 import { isAdminBadgeTitle } from './admin-tag';
 import type { ParsedPlayerRow, SteamBanSnapshot } from '../types';
 
-/** Player row flag tints. Priority: Admin (pink) → Sus (orange) → VAC/game ban (red). */
+/** Player row flag tints. Priority: Admin (pink) → Problem Player (red) → Sus (orange) → VAC/game ban (red). */
 export const PlayerFlagStyler = {
   clear(rowEl: HTMLElement): void {
     for (let i = 0; i < BM_FLAG_ROW_CLASSES.length; i++) {
@@ -19,6 +19,13 @@ export const PlayerFlagStyler = {
     for (let i = 0; i < titles.length; i++) {
       if (isAdminBadgeTitle(titles[i])) {
         row.classList.add('bss-toolkit-bmflag-admin');
+        return true;
+      }
+    }
+
+    for (let i = 0; i < titles.length; i++) {
+      if (normalizeWs(titles[i]).toLowerCase() === 'problem player') {
+        row.classList.add('bss-toolkit-bmflag-problem');
         return true;
       }
     }

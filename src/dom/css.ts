@@ -79,11 +79,15 @@ export const CssInjector = {
       // -- Admin tag: cyan player name (BM admin badge present) --
       '.bss-toolkit-admin-tag-name { color: #00fff7 !important; }',
 
-      // -- Player row flag tints (priority: admin → sus → steam ban) --
+      // -- Player row flag tints (priority: admin → problem player → sus → steam ban) --
       '.bss-toolkit-player-accent { border-left: 3px solid transparent; }',
       '.bss-toolkit-bmflag-admin {',
       '  border-left: 3px solid #e91eac !important;',
       '  background: rgba(233,30,172,.12) !important;',
+      '}',
+      '.bss-toolkit-bmflag-problem {',
+      '  border-left: 3px solid #dc2626 !important;',
+      '  background: rgba(220,38,38,.14) !important;',
       '}',
       '.bss-toolkit-bmflag-sus {',
       '  border-left: 3px solid #e67e22 !important;',

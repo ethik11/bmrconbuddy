@@ -1,5 +1,6 @@
 import {
   extractEosIdFromProfile,
+  extractProfileBanCrimeTime,
   extractProfileNoteCrimeTime,
   extractProfilePlayerName,
   extractSteamId64FromProfileIdentifiers,
@@ -14,7 +15,8 @@ export interface ProfileCopyInfo {
 }
 
 export function extractProfilePlayerCopyInfo(): ProfileCopyInfo {
-  const notes = extractProfileNoteCrimeTime();
+  const ban = extractProfileBanCrimeTime();
+  const notes = ban.crime || ban.time ? ban : extractProfileNoteCrimeTime();
   return {
     name: extractProfilePlayerName(),
     steam64: extractSteamId64FromProfileIdentifiers() || '',
@@ -33,21 +35,21 @@ export function formatCopyPlayerInfoBlock(info: {
   time?: string;
 }): string {
   return (
-    'Name : ' +
+    'Name: ' +
     (info.name || '') +
     '\n' +
-    'Steam64 : ' +
+    'Steam64: ' +
     (info.steam64 || '') +
     '\n' +
-    'EOS : ' +
+    'EOS: ' +
     (info.eos || '') +
     '\n' +
-    'Crime : ' +
+    'Crime: ' +
     (info.crime || '') +
     '\n' +
-    'Time : ' +
+    'Time: ' +
     (info.time || '') +
     '\n' +
-    'Evidence/Note : \n'
+    'Evidence/Note:\n'
   );
 }

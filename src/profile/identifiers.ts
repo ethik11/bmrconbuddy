@@ -3,8 +3,8 @@ import { normalizeWs } from '../dom/parsing';
 
 /**
  * DOM locators/scrapers for the player profile page: page heading, sub-nav tabs,
- * and the Identifiers table (SteamID64 / EOS / name / note crime+time). Used by
- * the CBL header chip, Copy Player Info, and Note Menu.
+ * the Identifiers table (SteamID64 / EOS / name), the bans table (crime+time),
+ * and note crime+time. Used by the CBL header chip, Copy Player Info, and Note Menu.
  */
 
 /** Profile activity-log root (`#RCONPlayerPage` or `main`). */
@@ -88,6 +88,42 @@ export function extractProfilePlayerName(): string {
   const h1 = findProfilePageH1();
   if (h1) return normalizeWs(h1.textContent || '');
   return '';
+}
+
+const BAN_EXPIRES_TITLES = ['Expires', 'Expiry', 'Expiration'];
+const PERM_EXPIRES_RE = /^(perm|permanent|never)$/i;
+
+function normalizeBanExpires(raw: string): string {
+  const t = normalizeWs(raw);
+  if (!t || PERM_EXPIRES_RE.test(t)) return 'Perm';
+  return t;
+}
+
+function profileBanExpiresCell(row: Element): HTMLTableCellElement | null {
+  for (let i = 0; i < BAN_EXPIRES_TITLES.length; i++) {
+    const cell = row.querySelector<HTMLTableCellElement>(
+      'td[data-title="' + BAN_EXPIRES_TITLES[i] + '"]',
+    );
+    if (cell) return cell;
+  }
+  return null;
+}
+
+/**
+ * Crime / expiry from the first (most recent) bans-table row on the profile.
+ * BM sorts bans newest-first; Identifiers uses Type/Identifier so Reason cells
+ * are unique to the bans table.
+ */
+export function extractProfileBanCrimeTime(): { crime: string; time: string } {
+  const reasonCell = document.querySelector<HTMLTableCellElement>('td[data-title="Reason"]');
+  if (!reasonCell) return { crime: '', time: '' };
+  const row = reasonCell.closest('tr');
+  if (!row) return { crime: '', time: '' };
+
+  const crime = identifierTextFromCell(reasonCell);
+  const rawTime = identifierTextFromCell(profileBanExpiresCell(row));
+  if (!crime && !rawTime) return { crime: '', time: '' };
+  return { crime, time: normalizeBanExpires(rawTime) };
 }
 
 /** Crime / expiry from active player notes (Desktop toolkit parity). */
