@@ -3,7 +3,7 @@ import { normalizeWs } from '../dom/parsing';
 
 /**
  * DOM locators/scrapers for the player profile page: page heading, sub-nav tabs,
- * the Identifiers table (SteamID64 / EOS / name), the bans table (crime+time),
+ * the Identifiers table (SteamID64 / EOS / name), Current & Past bans (crime+time),
  * and note crime+time. Used by the CBL header chip, Copy Player Info, and Note Menu.
  */
 
@@ -92,11 +92,72 @@ export function extractProfilePlayerName(): string {
 
 const BAN_EXPIRES_TITLES = ['Expires', 'Expiry', 'Expiration'];
 const PERM_EXPIRES_RE = /^(perm|permanent|never)$/i;
+const CURRENT_PAST_BANS_RE = /current\s*&\s*past\s*bans/i;
+const BAN_LIST_LINE_RE = / - .+ \| Expires:/i;
 
 function normalizeBanExpires(raw: string): string {
   const t = normalizeWs(raw);
   if (!t || PERM_EXPIRES_RE.test(t)) return 'Perm';
   return t;
+}
+
+/**
+ * Overview "Current & Past bans" line:
+ * `09/04/2026 2:38 AM - Rule 1: Offensive Language / Hate Speech | Expires: Perm | Appeal at …`
+ * Crime is the Rule text after ` - ` and before `| Expires`. Time is the Expires value.
+ */
+function parseDashExpiresLine(raw: string, normalizeTime: boolean): { crime: string; time: string } {
+  const text = normalizeWs(raw);
+  if (!text) return { crime: '', time: '' };
+  let crime = '';
+  let time = '';
+  const dashParts = text.split(' - ');
+  if (dashParts.length > 1) {
+    crime = dashParts.slice(1).join(' - ').split(' | Expires')[0].trim();
+  }
+  const m = text.match(/\| Expires:\s*([^|]+)/i);
+  if (m) time = m[1].trim();
+  if (normalizeTime && time) time = normalizeBanExpires(time);
+  return { crime, time };
+}
+
+function firstBanListLineIn(scope: ParentNode): string {
+  const nodes = scope.querySelectorAll('li a, li, a, span');
+  for (let i = 0; i < nodes.length; i++) {
+    const raw = normalizeWs(nodes[i].textContent || '');
+    if (BAN_LIST_LINE_RE.test(raw)) return raw;
+  }
+  return '';
+}
+
+function findCurrentPastBansHeading(): Element | null {
+  const nodes = document.querySelectorAll(
+    'h1, h2, h3, h4, h5, h6, button, [role="button"], summary, legend, a, span, strong, b, div',
+  );
+  let fallback: Element | null = null;
+  for (let i = 0; i < nodes.length; i++) {
+    const text = normalizeWs(nodes[i].textContent || '');
+    if (!CURRENT_PAST_BANS_RE.test(text)) continue;
+    if (text.length <= 48) return nodes[i];
+    if (!fallback && text.length <= 240) fallback = nodes[i];
+  }
+  return fallback;
+}
+
+function extractFromBanList(): { crime: string; time: string } {
+  const heading = findCurrentPastBansHeading();
+  const scopes: ParentNode[] = [];
+  if (heading) {
+    if (heading.nextElementSibling) scopes.push(heading.nextElementSibling);
+    if (heading.parentElement) scopes.push(heading.parentElement);
+  }
+  for (let s = 0; s < scopes.length; s++) {
+    const raw = firstBanListLineIn(scopes[s]);
+    if (!raw) continue;
+    const parsed = parseDashExpiresLine(raw, true);
+    if (parsed.crime || parsed.time) return parsed;
+  }
+  return { crime: '', time: '' };
 }
 
 function profileBanExpiresCell(row: Element): HTMLTableCellElement | null {
@@ -109,12 +170,7 @@ function profileBanExpiresCell(row: Element): HTMLTableCellElement | null {
   return null;
 }
 
-/**
- * Crime / expiry from the first (most recent) bans-table row on the profile.
- * BM sorts bans newest-first; Identifiers uses Type/Identifier so Reason cells
- * are unique to the bans table.
- */
-export function extractProfileBanCrimeTime(): { crime: string; time: string } {
+function extractFromBanTable(): { crime: string; time: string } {
   const reasonCell = document.querySelector<HTMLTableCellElement>('td[data-title="Reason"]');
   if (!reasonCell) return { crime: '', time: '' };
   const row = reasonCell.closest('tr');
@@ -126,6 +182,16 @@ export function extractProfileBanCrimeTime(): { crime: string; time: string } {
   return { crime, time: normalizeBanExpires(rawTime) };
 }
 
+/**
+ * Crime / expiry from the first (most recent) ban on the profile Overview.
+ * Prefers the "Current & Past bans" list; falls back to a Reason/Expires table.
+ */
+export function extractProfileBanCrimeTime(): { crime: string; time: string } {
+  const fromList = extractFromBanList();
+  if (fromList.crime || fromList.time) return fromList;
+  return extractFromBanTable();
+}
+
 /** Crime / expiry from active player notes (Desktop toolkit parity). */
 export function extractProfileNoteCrimeTime(): { crime: string; time: string } {
   const span =
@@ -133,16 +199,7 @@ export function extractProfileNoteCrimeTime(): { crime: string; time: string } {
     document.querySelector('.collapse.show ul li a span') ||
     document.querySelector('[class*="collapse"] ul li a span');
   const raw = span ? normalizeWs(span.textContent || '') : '';
-  if (!raw) return { crime: '', time: '' };
-  let crime = '';
-  let time = '';
-  const dashParts = raw.split(' - ');
-  if (dashParts.length > 1) {
-    crime = dashParts[1].split(' | Expires')[0].trim();
-  }
-  const m = raw.match(/\| Expires:\s*([^|]+)/i);
-  if (m) time = m[1].trim();
-  return { crime, time };
+  return parseDashExpiresLine(raw, false);
 }
 
 /** Player profile sub-nav tabs (Overview, Identifiers, …). */

@@ -47,6 +47,48 @@ describe('profile identifier scrapers', () => {
 });
 
 describe('extractProfileBanCrimeTime', () => {
+  it('reads crime and time from the Current & Past bans list', () => {
+    document.body.innerHTML = `
+      <aside>
+        <div>Player Bola Tinubu was kicked (Rule 1: Offensive Language / Hate Speech | Expires: Perm | Appeal at discord.gg/x) by Trigger</div>
+      </aside>
+      <section>
+        <h3>Current &amp; Past bans</h3>
+        <ul>
+          <li>
+            <a>09/04/2026 2:38 AM - Rule 1: Offensive Language / Hate Speech | Expires: Perm | Appeal at discord.gg/northernlightsgaming</a>
+          </li>
+          <li>
+            <a>01/01/2025 1:00 AM - Older ban | Expires: 2025-01-01 | Appeal at nowhere</a>
+          </li>
+        </ul>
+      </section>`;
+    expect(extractProfileBanCrimeTime()).toEqual({
+      crime: 'Rule 1: Offensive Language / Hate Speech',
+      time: 'Perm',
+    });
+  });
+
+  it('reads the first list line when the heading is a collapse toggle', () => {
+    document.body.innerHTML = `
+      <div>
+        <button type="button">Current &amp; Past bans</button>
+        <div class="collapse in">
+          <ul>
+            <li>
+              <a>
+                <span>09/04/2026 2:38 AM - Rule 1: Offensive Language / Hate Speech | Expires: Perm | Appeal at discord.gg/northernlightsgaming</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>`;
+    expect(extractProfileBanCrimeTime()).toEqual({
+      crime: 'Rule 1: Offensive Language / Hate Speech',
+      time: 'Perm',
+    });
+  });
+
   it('reads crime and time from the first (most recent) ban row', () => {
     document.body.innerHTML = `
       <table><tbody>

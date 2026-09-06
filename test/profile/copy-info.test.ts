@@ -50,7 +50,29 @@ describe('extractProfilePlayerCopyInfo', () => {
       <div class="collapse in"><ul><li><a><span>2026 - Teamkilling | Expires: never</span></a></li></ul></div>`;
   });
 
-  it('prefers the most recent ban over the note parser', () => {
+  it('prefers the Current & Past bans list over the note parser', () => {
+    document.body.insertAdjacentHTML(
+      'beforeend',
+      `<section>
+        <h3>Current &amp; Past bans</h3>
+        <ul>
+          <li>
+            <a>09/04/2026 2:38 AM - Rule 1: Offensive Language / Hate Speech | Expires: Perm | Appeal at discord.gg/northernlightsgaming</a>
+          </li>
+        </ul>
+      </section>`,
+    );
+
+    expect(extractProfilePlayerCopyInfo()).toEqual({
+      name: 'CoolPlayer',
+      steam64: STEAM,
+      eos: EOS,
+      crime: 'Rule 1: Offensive Language / Hate Speech',
+      time: 'Perm',
+    });
+  });
+
+  it('prefers the most recent ban table row over the note parser', () => {
     document.body.insertAdjacentHTML(
       'beforeend',
       `<table><tbody>
