@@ -24,6 +24,11 @@ Installing it is still just "add one file to Tampermonkey" — the module split 
 | **Profile actions** | On the Overview tab: "Copy Player Info" (name/Steam64/EOS, Crime/Time from the latest ban) and a Warn/Kick "Note Menu" that fills the note editor.                                          |
 | **Server identity** | 4px left accent bar on every dashboard (teal NL #1, gold NL #2, slate otherwise) plus a named header pill on the two Northern Lights servers. Feed colors stay the same everywhere.         |
 
+When Battlemetrics reuses a player or feed row, the toolkit removes obsolete CBL chips and rule
+effects and refreshes timestamp tooltips. Highlight-rule hiding and text filtering act independently:
+either can keep a player hidden. Failed CBL HTTP requests remain eligible for retry and are never
+cached as missing players.
+
 **Supported pages** (`@match`):
 
 - `https://www.battlemetrics.com/rcon/servers/*` — connected players + live feed on any RCON server
@@ -81,6 +86,7 @@ src/
   dom/
     parsing.ts            # normalize text, parse player rows, detect feed-line structure
     css.ts                # the injected <style> block (kept as a JS string on purpose)
+    style-override.ts     # restore owned inline overrides without erasing host styles
   feed/
     colors.ts             # feed phrase -> color tables + engine
     enhancer.ts           # timestamp tooltips, modal colors, shared reconcile pass
@@ -90,6 +96,7 @@ src/
     filter.ts             # matchesFilter() — shared substring / regex matcher
   highlight/
     rules.ts              # player + feed highlight-rule engine
+    actions.ts            # apply/reset owned rule effects; independent rule hiding
   cbl/
     graphql.ts            # CBL GraphQL client + response mapper
     severity.ts           # chip severity math (pure)

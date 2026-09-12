@@ -25,13 +25,24 @@ export class ConnectedPlayersPanel {
     private readonly getPlayerFilter: () => string,
   ) {}
 
-  private rowHasCblChip(rowEl: HTMLElement, steamId64: string): boolean {
+  private reconcileRowChips(rowEl: HTMLElement, steamId64: string | null): boolean {
     const nameCol = rowEl.querySelector('div.name');
-    return !!(nameCol && nameCol.querySelector('[' + CBL_FOR_ATTR + '="' + steamId64 + '"]'));
+    if (!nameCol) return false;
+    let hasChip = false;
+    for (const chip of nameCol.querySelectorAll('[' + CBL_FOR_ATTR + ']')) {
+      if (steamId64 && chip.getAttribute(CBL_FOR_ATTR) === steamId64) {
+        hasChip = true;
+      } else {
+        chip.remove();
+      }
+    }
+    if (!hasChip) nameCol.classList.remove('bss-toolkit-name-row');
+    return hasChip;
   }
 
   processRow(rowEl: HTMLElement): void {
     const parsed = parsePlayerRow(rowEl);
+    const hasChip = this.reconcileRowChips(rowEl, parsed?.steamId64 ?? null);
     if (!parsed) {
       if (rowEl.getAttribute('data-session')) rowEl.setAttribute(PROCESSED_ATTR, '0');
       return;
@@ -44,7 +55,6 @@ export class ConnectedPlayersPanel {
     this.applyPlayerFilter(parsed);
 
     // The CBL chip is expensive (network) and stable per steamId, so mount it once.
-    const hasChip = this.rowHasCblChip(rowEl, parsed.steamId64);
     if (rowEl.getAttribute(PROCESSED_ATTR) === '1' && hasChip) return;
 
     rowEl.setAttribute(PROCESSED_ATTR, '1');
@@ -85,7 +95,7 @@ export class ConnectedPlayersPanel {
   /** Re-apply BM flag / accent styling after a settings change (no duplicate CBL chips). */
   refreshPlayerRowVisuals(): void {
     const rows = document.querySelectorAll<HTMLElement>(
-      'div[data-session][data-bss-processed="1"]',
+      'div[data-session][' + PROCESSED_ATTR + '="1"]',
     );
     for (let i = 0; i < rows.length; i++) {
       const parsed = parsePlayerRow(rows[i]);
@@ -149,6 +159,14 @@ export class ConnectedPlayersPanel {
       }
       this.scheduleReconcile();
     });
-    this.observer.observe(document.body, { childList: true, subtree: true });
+    this.observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+      // React can reuse a row by changing only its identifiers and text. Avoid
+      // observing our own class/style changes, which would reschedule every scan.
+      attributeFilter: ['data-session', 'title', 'href'],
+    });
   }
 }
