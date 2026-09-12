@@ -6,19 +6,16 @@
     <title>BM RCON Buddy — Install</title>
     <meta
       name="description"
-      content="A Squad RCON toolkit for Battlemetrics admins: CBL reputation chips, feed colors, admin-tag names, flag tints, and a profile note menu. One-click install."
+      content="A Squad RCON toolkit for Battlemetrics admins: CBL reputation chips, feed colors, admin-tag names, flag tints, and a profile note menu. Works on any RCON server."
     />
     <meta property="og:title" content="BM RCON Buddy" />
     <meta
       property="og:description"
-      content="A Squad RCON toolkit for Battlemetrics admins — two clicks to install."
+      content="A Squad RCON toolkit for any Battlemetrics server — two clicks to install."
     />
     <meta property="og:type" content="website" />
     <meta name="theme-color" content="#0d1117" />
-    <link
-      rel="icon"
-      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='40' fill='none' stroke='%2300fff7' stroke-width='9'/%3E%3Ccircle cx='50' cy='50' r='11' fill='%2300fff7'/%3E%3C/svg%3E"
-    />
+    <link rel="icon" href="icon.png" type="image/png" />
     <style>
       :root {
         --bg: #0d1117;
@@ -66,7 +63,9 @@
         height: 64px;
         margin: 0 auto 14px;
         display: block;
-        filter: drop-shadow(0 2px 10px rgba(0, 255, 247, 0.25));
+        border-radius: 16px;
+        object-fit: cover;
+        filter: drop-shadow(0 2px 12px rgba(45, 212, 191, 0.35));
       }
       h1 {
         margin: 0 0 6px;
@@ -266,12 +265,9 @@
   <body>
     <main class="wrap">
       <header>
-        <svg class="logo" viewBox="0 0 100 100" aria-hidden="true">
-          <circle cx="50" cy="50" r="40" fill="none" stroke="#00fff7" stroke-width="9" />
-          <circle cx="50" cy="50" r="11" fill="#00fff7" />
-        </svg>
+        <img class="logo" src="icon.png" width="64" height="64" alt="" />
         <h1>BM RCON Buddy</h1>
-        <p class="tagline">A Squad RCON toolkit for Battlemetrics admins.</p>
+        <p class="tagline">A Squad RCON toolkit for any Battlemetrics server.</p>
         <span class="pill" id="version">Latest release</span>
       </header>
 
@@ -328,16 +324,18 @@
       </ol>
 
       <section class="features">
-        <h2>What's new in 1.7.9</h2>
+        <h2>What's new</h2>
         <ul>
-          <li>Copy Player Info reads Crime/Time from Current &amp; Past bans</li>
-          <li>Problem Player rows tint red</li>
+          <li>Runs on every Battlemetrics RCON server</li>
+          <li>Teal NL #1 / gold NL #2 identity chrome</li>
         </ul>
       </section>
 
       <section class="features">
         <h2>What you get</h2>
         <ul>
+          <li>Any RCON server</li>
+          <li>NL #1 / #2 accents</li>
           <li>CBL reputation chips</li>
           <li>Colored live feed</li>
           <li>Admin-tag name colors</li>
@@ -359,8 +357,9 @@
           <a href="https://github.com/ethik11/bmrconbuddy/blob/main/LICENSE">MIT License</a>
         </div>
         <p class="scope">
-          Works on the Squad RCON dashboard and player profiles at
-          <code>battlemetrics.com</code>.
+          Works on any Squad RCON dashboard (<code>/rcon/servers/*</code>) and all player profiles
+          at <code>battlemetrics.com</code>. NL #1 is teal, NL #2 is gold; other servers get a slate
+          accent bar.
         </p>
       </footer>
     </main>
