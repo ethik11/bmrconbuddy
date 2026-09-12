@@ -1,3 +1,5 @@
+import { RULE_HIDDEN_CLASS } from '../constants';
+
 /**
  * Injected once at init. Class prefix: `bss-toolkit-`.
  *
@@ -94,7 +96,7 @@ export const CssInjector = {
       '}',
 
       // -- Filters (dim/hide non-matching rows or feed lines) --
-      '.bss-toolkit-player-filtered { display: none !important; }',
+      '.bss-toolkit-player-filtered, .' + RULE_HIDDEN_CLASS + ' { display: none !important; }',
       '.bss-toolkit-feed-filtered { opacity: .22; }',
 
       // -- Feed highlight rules (left border + faint background) --

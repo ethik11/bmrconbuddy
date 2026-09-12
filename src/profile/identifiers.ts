@@ -106,7 +106,10 @@ function normalizeBanExpires(raw: string): string {
  * `09/04/2026 2:38 AM - Rule 1: Offensive Language / Hate Speech | Expires: Perm | Appeal at …`
  * Crime is the Rule text after ` - ` and before `| Expires`. Time is the Expires value.
  */
-function parseDashExpiresLine(raw: string, normalizeTime: boolean): { crime: string; time: string } {
+function parseDashExpiresLine(
+  raw: string,
+  normalizeTime: boolean,
+): { crime: string; time: string } {
   const text = normalizeWs(raw);
   if (!text) return { crime: '', time: '' };
   let crime = '';

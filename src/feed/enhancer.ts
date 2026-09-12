@@ -3,6 +3,7 @@ import { TS_TITLE_ATTR } from '../constants';
 import { getFeedLineText, resolveFeedLineContainer } from '../dom/parsing';
 import { HighlightRuleEngine } from '../highlight/rules';
 import { FeedTextColorEngine } from './colors';
+import type { HighlightRule } from '../types';
 
 /**
  * Shared feed styling for the server live feed and the profile activity log:
@@ -15,13 +16,18 @@ import { FeedTextColorEngine } from './colors';
 const FeedTimestampEnhancer = {
   applyToTime(timeEl: Element): void {
     if (!timeEl || timeEl.tagName !== 'TIME') return;
-    if (timeEl.getAttribute(TS_TITLE_ATTR)) return;
-    const raw = timeEl.getAttribute('datetime');
-    if (!raw) return;
+    const raw = timeEl.getAttribute('datetime') || '';
+    if (raw && timeEl.getAttribute(TS_TITLE_ATTR) === raw) return;
     const d = new Date(raw);
-    if (Number.isNaN(d.getTime())) return;
+    if (Number.isNaN(d.getTime())) {
+      if (timeEl.hasAttribute(TS_TITLE_ATTR)) {
+        timeEl.removeAttribute('title');
+        timeEl.removeAttribute(TS_TITLE_ATTR);
+      }
+      return;
+    }
     timeEl.setAttribute('title', d.toLocaleString(undefined, { timeZoneName: 'short' }));
-    timeEl.setAttribute(TS_TITLE_ATTR, '1');
+    timeEl.setAttribute(TS_TITLE_ATTR, raw);
   },
 };
 
@@ -95,6 +101,7 @@ const ServerModalStyler = {
 export interface ReconcileOptions {
   scopeRoot?: ParentNode;
   applyHighlightRules?: boolean;
+  highlightRules?: HighlightRule[];
   applyFeedFilter?: boolean;
   feedFilterFn?: (lineEl: HTMLElement, text: string) => void;
   applyModalStyles?: boolean;
@@ -112,7 +119,11 @@ export const FeedColorEnhancer = {
         FeedTextColorEngine.applyToLine(lineEl);
         const text = getFeedLineText(lineEl);
         if (options.applyHighlightRules) {
-          HighlightRuleEngine.applyFeed(getHighlightRules(), lineEl, text);
+          HighlightRuleEngine.applyFeed(
+            options.highlightRules ?? getHighlightRules(),
+            lineEl,
+            text,
+          );
         }
         if (options.applyFeedFilter && options.feedFilterFn) {
           options.feedFilterFn(lineEl, text);

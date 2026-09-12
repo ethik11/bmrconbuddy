@@ -1,9 +1,12 @@
 import { getFeedMessageElement, normalizeWs } from '../dom/parsing';
+import { createStyleOverride } from '../dom/style-override';
 
 /**
  * Feed phrase → inline text color. Colors the entire feed message `<div>` when a
  * phrase matches. Does NOT color individual player names (see admin-tag styler).
  */
+
+const setMessageColor = createStyleOverride('color');
 
 const FEED_COLORS = {
   cModAction: '#ff3333', // warn / kick / ban
@@ -97,29 +100,31 @@ const FEED_PHRASE_SETS = {
 
 export const FeedTextColorEngine = {
   applyToMessage(msgEl: HTMLElement, text: string): void {
-    if (!msgEl || !text) return;
+    if (!msgEl) return;
+    let color: string | null = null;
 
     if (this.matchPhrases(text, FEED_PHRASE_SETS.adminTerms)) {
-      msgEl.style.color = FEED_COLORS.cAdminAction;
+      color = FEED_COLORS.cAdminAction;
     }
     if (this.matchPhrases(text, FEED_PHRASE_SETS.actionList)) {
-      msgEl.style.color = FEED_COLORS.cModAction;
+      color = FEED_COLORS.cModAction;
     }
     if (this.matchPhrases(text, FEED_PHRASE_SETS.teamBluefor)) {
-      msgEl.style.color = FEED_COLORS.cTeamBluefor;
+      color = FEED_COLORS.cTeamBluefor;
     } else if (this.matchPhrases(text, FEED_PHRASE_SETS.teamPac)) {
-      msgEl.style.color = FEED_COLORS.cTeamPac;
+      color = FEED_COLORS.cTeamPac;
     } else if (this.matchPhrases(text, FEED_PHRASE_SETS.teamOpfor)) {
-      msgEl.style.color = FEED_COLORS.cTeamOpfor;
+      color = FEED_COLORS.cTeamOpfor;
     } else if (this.matchPhrases(text, FEED_PHRASE_SETS.teamIndep)) {
-      msgEl.style.color = FEED_COLORS.cTeamIndep;
+      color = FEED_COLORS.cTeamIndep;
     }
     if (this.matchPhrases(text, FEED_PHRASE_SETS.teamKilled)) {
-      msgEl.style.color = FEED_COLORS.cTeamKilled;
+      color = FEED_COLORS.cTeamKilled;
     }
     if (this.matchPhrases(text, FEED_PHRASE_SETS.trackedTriggers)) {
-      msgEl.style.color = FEED_COLORS.cTracked;
+      color = FEED_COLORS.cTracked;
     }
+    setMessageColor(msgEl, color);
   },
 
   matchPhrases(text: string, phrases: string[]): boolean {

@@ -1,7 +1,8 @@
 import { getColorRowsByBmFlags, getSteamBanLookup } from '../app/state';
 import { normalizeWs, playerRowSearchBlob } from '../dom/parsing';
 import { PlayerFlagStyler, resetBuiltinPlayerRowVisuals } from '../players/flag-styler';
-import type { HighlightAction, HighlightRule, ParsedPlayerRow } from '../types';
+import type { HighlightRule, ParsedPlayerRow } from '../types';
+import { applyHighlightActions, resetHighlightActions } from './actions';
 
 /**
  * Highlight rules for player rows and feed lines. `applyPlayer` reads the Steam
@@ -11,6 +12,7 @@ import type { HighlightAction, HighlightRule, ParsedPlayerRow } from '../types';
 export const HighlightRuleEngine = {
   applyPlayer(rules: HighlightRule[], parsed: ParsedPlayerRow): void {
     const row = parsed.rowEl;
+    resetHighlightActions(row);
     resetBuiltinPlayerRowVisuals(row);
     const lookup = getSteamBanLookup();
     const steamSnap = lookup ? lookup.getSnapshot(parsed.steamId64) : null;
@@ -26,11 +28,12 @@ export const HighlightRuleEngine = {
       const rule = rules[i];
       if (!rule || !rule.enabled) continue;
       if (!this.matchPlayer(rule, parsed)) continue;
-      this.applyActions(row, rule.actions);
+      applyHighlightActions(row, rule.actions);
     }
   },
 
   applyFeed(rules: HighlightRule[], lineEl: HTMLElement, lineText: string): void {
+    resetHighlightActions(lineEl);
     for (let i = 0; i < rules.length; i++) {
       const rule = rules[i];
       if (!rule || !rule.enabled || !rule.feedLineMatches) continue;
@@ -42,7 +45,7 @@ export const HighlightRuleEngine = {
           continue;
         }
       }
-      this.applyActions(lineEl, rule.actions);
+      applyHighlightActions(lineEl, rule.actions);
     }
   },
 
@@ -102,18 +105,5 @@ export const HighlightRuleEngine = {
       !!rule.badgeTitleContains ||
       !!rule.textMatches
     );
-  },
-
-  applyActions(el: HTMLElement, actions: HighlightAction[]): void {
-    if (!actions) return;
-    for (let i = 0; i < actions.length; i++) {
-      const a = actions[i];
-      if (!a) continue;
-      if (a.type === 'setRowClass' && a.className) el.classList.add(a.className);
-      if (a.type === 'setBorderColor' && a.borderColor) {
-        el.style.borderLeft = '3px solid ' + a.borderColor;
-      }
-      if (a.type === 'hideRow') el.classList.add('bss-toolkit-player-filtered');
-    }
   },
 };

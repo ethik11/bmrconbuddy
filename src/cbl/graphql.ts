@@ -27,6 +27,10 @@ export const CblGraphqlClient = {
         headers: { 'Content-Type': 'application/json' },
         data: body,
         onload(r) {
+          if (r.status < 200 || r.status >= 300) {
+            reject(new Error('CBL HTTP ' + r.status));
+            return;
+          }
           try {
             resolve(JSON.parse(r.responseText || '{}'));
           } catch (e) {

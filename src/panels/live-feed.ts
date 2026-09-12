@@ -49,6 +49,7 @@ export class RconLiveFeed {
     }
     FeedColorEnhancer.reconcileDocument({
       applyHighlightRules: true,
+      highlightRules: this.getRules(),
       applyFeedFilter: true,
       feedFilterFn: (lineEl, text) => this.applyFeedFilter(lineEl, text),
       applyModalStyles: true,
@@ -72,7 +73,7 @@ export class RconLiveFeed {
     lineEl.removeAttribute(FEED_PROCESSED_ATTR);
     stripBssToolkitClassesFromElement(lineEl);
     const msg = getFeedMessageElement(lineEl);
-    if (msg) msg.style.color = '';
+    if (msg) FeedTextColorEngine.applyToMessage(msg, '');
   }
 
   prepareForSpaRescan(): void {

@@ -14,7 +14,7 @@ export const STORAGE_PREFIX = 'bssToolkit.v1.';
 // --- DOM markers ------------------------------------------------------------
 export const PROCESSED_ATTR = 'data-bss-processed'; // player row handled
 export const FEED_PROCESSED_ATTR = 'data-bss-feed-processed'; // feed line handled
-export const TS_TITLE_ATTR = 'data-bss-ts-title'; // timestamp tooltip applied
+export const TS_TITLE_ATTR = 'data-bss-ts-title'; // datetime used for the timestamp tooltip
 export const ADMIN_TAG_NAME_MARK_ATTR = 'data-bss-admin-tag-name'; // name recolored
 export const CBL_FOR_ATTR = 'data-bss-cbl-for'; // chip present for steamId
 export const CBL_PENDING_ATTR = 'data-bss-cbl-pending'; // profile header chip in flight
@@ -26,6 +26,7 @@ export const SERVER_IDENTITY_ATTR = 'data-bss-server-identity'; // NL #1 / NL #2
 // --- CSS class names --------------------------------------------------------
 export const ADMIN_TAG_NAME_CLASS = 'bss-toolkit-admin-tag-name';
 export const ADMIN_TAG_NAME_COLOR = '#00fff7';
+export const RULE_HIDDEN_CLASS = 'bss-toolkit-rule-hidden';
 export const SERVER_ACCENT_CLASS = 'bss-toolkit-has-server-accent';
 export const SERVER_PILL_CLASS = 'bss-toolkit-server-pill';
 export const SERVER_H1_WITH_PILL_CLASS = 'bss-toolkit-server-h1-with-pill';
