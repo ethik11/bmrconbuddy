@@ -2,7 +2,9 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { RconLiveFeed } from '../../src/panels/live-feed';
 import { DEFAULT_RULES, TS_TITLE_ATTR } from '../../src/constants';
 import { getFeedMessageElement } from '../../src/dom/parsing';
+import { setThemeSettings } from '../../src/app/state';
 import type { HighlightRule } from '../../src/types';
+import { __resetGmStore } from '../mocks/gm';
 
 function mountFeedLine(text: string): HTMLElement {
   const line = document.createElement('div');
@@ -13,9 +15,13 @@ function mountFeedLine(text: string): HTMLElement {
 
 describe('RconLiveFeed (integration)', () => {
   beforeEach(() => {
+    __resetGmStore();
     document.body.innerHTML = '';
   });
-  afterEach(() => vi.useRealTimers());
+  afterEach(() => {
+    __resetGmStore();
+    vi.useRealTimers();
+  });
 
   it('colors the message, applies the highlight rule, and tooltips the timestamp', () => {
     const line = mountFeedLine('Player XYZ was kicked');
@@ -28,6 +34,16 @@ describe('RconLiveFeed (integration)', () => {
     expect(msg.style.color).not.toBe(''); // phrase color applied ("was kicked" -> mod-action red)
     expect(line.classList.contains('bss-toolkit-feed-kick')).toBe(true); // DEFAULT_RULES feed-kick
     expect(line.querySelector('time')?.getAttribute(TS_TITLE_ATTR)).toBe('2026-01-01T00:00:00Z');
+  });
+
+  it('applies the stored theme color to a mod-action line', () => {
+    setThemeSettings({ feedModAction: '#112233' });
+    const line = mountFeedLine('Player XYZ was kicked');
+    new RconLiveFeed(
+      () => DEFAULT_RULES,
+      () => '',
+    ).reconcileAll();
+    expect(getFeedMessageElement(line)!.style.color).toBe('rgb(17, 34, 51)');
   });
 
   it('dims feed lines that do not match the feed filter', () => {

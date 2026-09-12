@@ -11,7 +11,14 @@ import { SteamBanLookup } from '../steam/ban-lookup';
 import { MATCHED_SERVER_PATH_RE } from '../server-config';
 import { cancelSelfCheck, scheduleSelfCheck } from './self-check';
 import { applyServerIdentity, clearServerIdentity } from './server-identity';
-import { getFeedFilter, getHighlightRules, getPlayerFilter, setSteamBanLookup } from './state';
+import {
+  getFeedFilter,
+  getHighlightRules,
+  getPlayerFilter,
+  setSteamBanLookup,
+  setThemeChangeHandler,
+} from './state';
+import { AdminTagNameStyler } from '../players/admin-tag';
 
 /**
  * Route switcher for the SPA: starts/stops the server dashboard vs the profile
@@ -61,6 +68,14 @@ function startServerDashboard(): void {
   bmToolkitServer.players = players;
   bmToolkitServer.feed = feed;
   bmToolkitServer.cbl = cbl;
+}
+
+/** Re-paint live decorations after a theme / flag-tint settings change. */
+function refreshToolkitVisuals(): void {
+  if (bmToolkitServer.players) bmToolkitServer.players.refreshPlayerRowVisuals();
+  if (bmToolkitServer.feed) bmToolkitServer.feed.reconcileAll();
+  AdminTagNameStyler.reconcileTaggedPlayers();
+  ProfilePageRunner.reconcileActivityLog();
 }
 
 /** Route switcher: profile pages vs the matched server vs everything else. */
@@ -115,6 +130,7 @@ export function applyBattlemetricsRoute(): void {
  * patch both (once) plus a popstate listener and a 750ms fallback poll.
  */
 export function installBattlemetricsRouteWatcher(): void {
+  setThemeChangeHandler(refreshToolkitVisuals);
   let routeLastHref = location.href;
   let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 

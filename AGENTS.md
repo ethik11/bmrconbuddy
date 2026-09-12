@@ -29,8 +29,8 @@ importing `src/app/routing.ts`** (the lifecycle orchestrator). That inversion is
 apparent `highlight ↔ routing` and `feed ↔ main` cycles from being real. Don't move settings/
 singleton accessors into `routing.ts`.
 
-GM APIs (`$` import) appear in exactly four modules: `platform/storage`, `platform/clipboard`,
-`cbl/graphql`, `steam/ban-lookup`. Keep pure/DOM logic free of `$` so it stays unit-testable.
+GM APIs (`$` import) appear in exactly five modules: `platform/storage`, `platform/clipboard`,
+`platform/menu`, `cbl/graphql`, `steam/ban-lookup`. Keep pure/DOM logic free of `$` so it stays unit-testable.
 
 ## Invariants — do not "clean these up"
 
@@ -70,7 +70,7 @@ integration tests there before large changes to them.
 
 ## Adding a module
 
-Place it by domain (`dom/`, `feed/`, `players/`, `cbl/`, `steam/`, `panels/`, `profile/`, `app/`).
+Place it by domain (`dom/`, `feed/`, `players/`, `cbl/`, `steam/`, `panels/`, `profile/`, `settings/`, `app/`).
 Keep it below its consumers in the graph; if it needs shared settings or the Steam-ban singleton,
 read them from `app/state.ts` rather than importing `app/routing.ts`. Add its `data-*` markers to
 `constants.ts`.
@@ -79,7 +79,11 @@ read them from `app/state.ts` rather than importing `app/routing.ts`. Add its `d
 
 Bump `version` in `package.json`, commit, then `git tag v<version> && git push --tags`. The
 [release workflow](.github/workflows/release.yml) builds and attaches `bmr-con-buddy.user.js` +
-`.meta.js` to a GitHub Release; installed clients auto-update via the banner's `@updateURL`.
+`.meta.js` to a GitHub Release **and then deploys GitHub Pages** from `docs/` so
+https://ethik11.github.io/bmrconbuddy/ picks up the new tag and release notes. Installed
+clients auto-update via the banner's `@updateURL`. Docs-only edits on `main` also republish
+via [pages.yml](.github/workflows/pages.yml). The repo Pages source must be **GitHub Actions**
+(Settings → Pages → Source), not the legacy `main` `/docs` branch, or those deploy jobs fail.
 
 ## Dependencies
 

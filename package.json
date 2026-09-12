@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/ethik11/bmrconbuddy.git"
   },
-  "homepage": "https://github.com/ethik11/bmrconbuddy#readme",
+  "homepage": "https://ethik11.github.io/bmrconbuddy/",
   "bugs": "https://github.com/ethik11/bmrconbuddy/issues",
   "scripts": {
     "dev": "vite",

@@ -1,4 +1,5 @@
-import { ADMIN_TAG_NAME_CLASS, ADMIN_TAG_NAME_COLOR, ADMIN_TAG_NAME_MARK_ATTR } from '../constants';
+import { ADMIN_TAG_NAME_CLASS, ADMIN_TAG_NAME_MARK_ATTR } from '../constants';
+import { getThemeSettings } from '../app/state';
 import { collectBadgeTitlesFromNameArea, parsePlayerRow } from '../dom/parsing';
 import type { ParsedPlayerRow } from '../types';
 
@@ -43,7 +44,7 @@ function setAdminTagNameStyle(el: HTMLElement | null, hasAdminTag: boolean): voi
   if (!el) return;
   if (hasAdminTag) {
     el.classList.add(ADMIN_TAG_NAME_CLASS);
-    el.style.color = ADMIN_TAG_NAME_COLOR;
+    el.style.color = getThemeSettings().adminTagName;
     el.setAttribute(ADMIN_TAG_NAME_MARK_ATTR, '1');
     return;
   }

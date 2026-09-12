@@ -3,6 +3,7 @@ import { CssInjector } from './dom/css';
 import { PlayerProfileCblLink } from './profile/header-cbl';
 import { PlayerProfileOverviewUi } from './profile/overview-ui';
 import { ProfilePageRunner } from './profile/scheduler';
+import { SettingsPanel } from './settings/panel';
 
 /**
  * BM RCON Buddy — userscript entry point (the only module with top-level side
@@ -20,6 +21,7 @@ function wireProfileTasks(): void {
 function initBattlemetricsToolkit(): void {
   wireProfileTasks();
   CssInjector.inject();
+  SettingsPanel.mount();
   installBattlemetricsRouteWatcher();
   applyBattlemetricsRoute(); // initial page
 }

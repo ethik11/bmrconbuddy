@@ -218,6 +218,21 @@
         border-bottom: 2px solid var(--cyan);
         transform: rotate(-45deg);
       }
+      .features .more {
+        margin: 14px 0 0;
+        font-size: 13px;
+      }
+      .features .more a {
+        color: #bcd0ea;
+        text-decoration: none;
+        border-bottom: 1px solid transparent;
+      }
+      .features .more a:hover {
+        border-bottom-color: currentColor;
+      }
+      .features .more[hidden] {
+        display: none;
+      }
       footer {
         text-align: center;
         color: var(--muted);
@@ -325,10 +340,13 @@
 
       <section class="features">
         <h2>What's new</h2>
-        <ul>
+        <ul id="whats-new">
           <li>Runs on every Battlemetrics RCON server</li>
           <li>Teal NL #1 / gold NL #2 identity chrome</li>
         </ul>
+        <p class="more" id="whats-new-more" hidden>
+          <a href="https://github.com/ethik11/bmrconbuddy/releases/latest">Full release notes</a>
+        </p>
       </section>
 
       <section class="features">
@@ -344,6 +362,7 @@
           <li>Player &amp; feed filters</li>
           <li>Copy Player Info</li>
           <li>Warn/Kick note menu</li>
+          <li>Color settings popout</li>
           <li>Auto-updates</li>
         </ul>
       </section>
@@ -365,9 +384,41 @@
     </main>
 
     <script>
-      // Show the current version from the GitHub Releases API (best-effort; the repo
-      // must be public for this to resolve). The install link is always "latest".
+      // Version pill + "What's new" come from the latest GitHub Release so tagging
+      // a release updates this page without a separate docs commit.
       (function () {
+        function escapeHtml(text) {
+          return String(text)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;');
+        }
+
+        function formatInline(escaped) {
+          return escaped
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
+            .replace(/\*\*([^*]+)\*\*/g, '<b>$1</b>');
+        }
+
+        function releaseNoteItems(body) {
+          if (!body || !String(body).trim()) return [];
+          var lines = String(body).replace(/\r\n/g, '\n').split('\n');
+          var items = [];
+          for (var i = 0; i < lines.length; i++) {
+            var match = lines[i].match(/^\s*[-*+]\s+(.+)/);
+            if (match) items.push(match[1]);
+          }
+          if (!items.length) {
+            for (var j = 0; j < lines.length; j++) {
+              var line = lines[j].replace(/^\s+|\s+$/g, '');
+              if (!line || line.charAt(0) === '#') continue;
+              items.push(line);
+            }
+          }
+          return items.slice(0, 10);
+        }
+
         fetch('https://api.github.com/repos/ethik11/bmrconbuddy/releases/latest', {
           headers: { Accept: 'application/vnd.github+json' },
         })
@@ -375,9 +426,25 @@
             return r.ok ? r.json() : null;
           })
           .then(function (data) {
-            if (data && data.tag_name) {
+            if (!data) return;
+            if (data.tag_name) {
               document.getElementById('version').innerHTML =
-                'Latest release &nbsp;<b>' + data.tag_name + '</b>';
+                'Latest release &nbsp;<b>' + escapeHtml(data.tag_name) + '</b>';
+            }
+            var notes = document.getElementById('whats-new');
+            var items = releaseNoteItems(data.body);
+            if (notes && items.length) {
+              var html = '';
+              for (var i = 0; i < items.length; i++) {
+                html += '<li>' + formatInline(escapeHtml(items[i])) + '</li>';
+              }
+              notes.innerHTML = html;
+            }
+            var more = document.getElementById('whats-new-more');
+            if (more && (data.html_url || data.tag_name)) {
+              more.removeAttribute('hidden');
+              var link = more.querySelector('a');
+              if (link && data.html_url) link.setAttribute('href', data.html_url);
             }
           })
           .catch(function () {});

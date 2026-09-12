@@ -22,6 +22,8 @@ export const PROFILE_HEADER_CBL_ATTR = 'data-bss-profile-header-cbl';
 export const PROFILE_PATH_ATTR = 'data-bss-profile-path';
 export const PROFILE_OVERVIEW_ACTIONS_ATTR = 'data-bss-profile-overview-actions';
 export const SERVER_IDENTITY_ATTR = 'data-bss-server-identity'; // NL #1 / NL #2 header pill
+export const SETTINGS_GEAR_ATTR = 'data-bss-settings-gear'; // corner settings FAB
+export const SETTINGS_PANEL_ATTR = 'data-bss-settings-panel'; // color settings popout
 
 // --- CSS class names --------------------------------------------------------
 export const ADMIN_TAG_NAME_CLASS = 'bss-toolkit-admin-tag-name';

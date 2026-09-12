@@ -1,5 +1,6 @@
 import { getFeedMessageElement, normalizeWs } from '../dom/parsing';
 import { createStyleOverride } from '../dom/style-override';
+import { getThemeSettings } from '../app/state';
 
 /**
  * Feed phrase → inline text color. Colors the entire feed message `<div>` when a
@@ -7,17 +8,6 @@ import { createStyleOverride } from '../dom/style-override';
  */
 
 const setMessageColor = createStyleOverride('color');
-
-const FEED_COLORS = {
-  cModAction: '#ff3333', // warn / kick / ban
-  cAdminAction: '#37ff00', // map change, squad disband, flags, etc.
-  cTeamKilled: '#ffcc00',
-  cTeamBluefor: '#e7a600',
-  cTeamPac: '#34804d',
-  cTeamOpfor: '#d95627',
-  cTeamIndep: '#eaff00',
-  cTracked: '#919191', // auto-kick / spam triggers
-};
 
 const FEED_PHRASE_SETS = {
   teamKilled: ['team killed'],
@@ -102,27 +92,28 @@ export const FeedTextColorEngine = {
   applyToMessage(msgEl: HTMLElement, text: string): void {
     if (!msgEl) return;
     let color: string | null = null;
+    const theme = getThemeSettings();
 
     if (this.matchPhrases(text, FEED_PHRASE_SETS.adminTerms)) {
-      color = FEED_COLORS.cAdminAction;
+      color = theme.feedAdminAction;
     }
     if (this.matchPhrases(text, FEED_PHRASE_SETS.actionList)) {
-      color = FEED_COLORS.cModAction;
+      color = theme.feedModAction;
     }
     if (this.matchPhrases(text, FEED_PHRASE_SETS.teamBluefor)) {
-      color = FEED_COLORS.cTeamBluefor;
+      color = theme.feedTeamBluefor;
     } else if (this.matchPhrases(text, FEED_PHRASE_SETS.teamPac)) {
-      color = FEED_COLORS.cTeamPac;
+      color = theme.feedTeamPac;
     } else if (this.matchPhrases(text, FEED_PHRASE_SETS.teamOpfor)) {
-      color = FEED_COLORS.cTeamOpfor;
+      color = theme.feedTeamOpfor;
     } else if (this.matchPhrases(text, FEED_PHRASE_SETS.teamIndep)) {
-      color = FEED_COLORS.cTeamIndep;
+      color = theme.feedTeamIndep;
     }
     if (this.matchPhrases(text, FEED_PHRASE_SETS.teamKilled)) {
-      color = FEED_COLORS.cTeamKilled;
+      color = theme.feedTeamKilled;
     }
     if (this.matchPhrases(text, FEED_PHRASE_SETS.trackedTriggers)) {
-      color = FEED_COLORS.cTracked;
+      color = theme.feedTracked;
     }
     setMessageColor(msgEl, color);
   },

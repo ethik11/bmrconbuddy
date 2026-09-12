@@ -21,6 +21,7 @@ Installing it is still just "add one file to Tampermonkey" — the module split 
 | **Row tints**       | Left-border tint per player row: admin (pink) → Problem Player (red) → sus (orange) → VAC/game ban (red, needs a Steam Web API key).                                                        |
 | **Filters**         | Substring or `/regex/flags` filtering of both the player list and the feed.                                                                                                                 |
 | **Highlight rules** | Built-in feed border rules (warn/trigger/kick) plus stored, user-configurable player/feed rules.                                                                                            |
+| **Color settings**  | Corner gear (and Tampermonkey menu) opens a popout to customize feed, highlight, admin-tag, and flag-tint colors. Reset restores defaults. Persisted in GM storage.                         |
 | **Profile actions** | On the Overview tab: "Copy Player Info" (name/Steam64/EOS, Crime/Time from the latest ban) and a Warn/Kick "Note Menu" that fills the note editor.                                          |
 | **Server identity** | 4px left accent bar on every dashboard (teal NL #1, gold NL #2, slate otherwise) plus a named header pill on the two Northern Lights servers. Feed colors stay the same everywhere.         |
 
@@ -37,10 +38,11 @@ cached as missing players.
 ## Install (users)
 
 1. Install the [Tampermonkey](https://www.tampermonkey.net/) browser extension.
-2. Open the latest release build —
-   **[bmr-con-buddy.user.js](https://github.com/ethik11/bmrconbuddy/releases/latest/download/bmr-con-buddy.user.js)** —
-   and Tampermonkey will prompt to install. It **auto-updates** from GitHub Releases thereafter (via
-   `@updateURL`).
+2. Open the **[install page](https://ethik11.github.io/bmrconbuddy/)** and click **Install the
+   script** — Tampermonkey will prompt to confirm. Direct download:
+   **[bmr-con-buddy.user.js](https://github.com/ethik11/bmrconbuddy/releases/latest/download/bmr-con-buddy.user.js)**.
+   It **auto-updates** from GitHub Releases thereafter (via `@updateURL`). The install page always
+   shows the latest release tag and notes.
 
 Prefer to build it yourself? `pnpm install && pnpm build`, then open `dist/bmr-con-buddy.user.js`
 (see [Development](#development)).
@@ -83,6 +85,7 @@ src/
   platform/
     storage.ts            # GM_getValue/GM_setValue wrappers
     clipboard.ts          # GM_setClipboard + fallbacks
+    menu.ts               # GM_registerMenuCommand wrapper
   dom/
     parsing.ts            # normalize text, parse player rows, detect feed-line structure
     css.ts                # the injected <style> block (kept as a JS string on purpose)
@@ -114,6 +117,9 @@ src/
     note-templates.ts     # Warn/Kick note templates + editor fill
     header-cbl.ts         # profile-header CBL chip
     overview-ui.ts        # Copy button + Note Menu UI
+  settings/
+    defaults.ts           # color tokens, CSS variables, merge/validate helpers
+    panel.ts              # corner gear + settings popout (no GM import)
 test/                     # Vitest specs + jsdom fixtures + the GM mock ($ alias)
 ```
 
@@ -128,6 +134,7 @@ All persisted values use the `bssToolkit.v1.` prefix in GM storage:
 | Key                                             | Purpose                                                     |
 | ----------------------------------------------- | ----------------------------------------------------------- |
 | `highlightRules`                                | user-configurable highlight rules (falls back to built-ins) |
+| `theme`                                         | user color overrides for feed / highlights / flags          |
 | `playerFilter` / `feedFilter`                   | active filter strings                                       |
 | `colorRowsByBmFlags`                            | toggle BM-flag row tints                                    |
 | `cblCache` / `cblTtlHours` / `cblMinIntervalMs` | CBL reputation cache + tuning                               |

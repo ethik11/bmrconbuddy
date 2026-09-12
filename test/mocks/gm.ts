@@ -18,6 +18,10 @@ export function GM_setClipboard(_data: string, _type?: string): void {
   /* no-op in tests */
 }
 
+export function GM_registerMenuCommand(_name: string, _fn: () => void): void {
+  /* no-op in tests */
+}
+
 export function GM_xmlhttpRequest(_details: unknown): void {
   /* no-op in tests; service tests override via vi.mock('$') */
 }

@@ -1,14 +1,22 @@
 import { DEFAULT_RULES } from '../constants';
-import { storageGet } from '../platform/storage';
+import { storageGet, storageSet } from '../platform/storage';
+import {
+  applyThemeCssVars,
+  DEFAULT_THEME,
+  mergeTheme,
+  type ThemeSettings,
+} from '../settings/defaults';
 import type { HighlightRule } from '../types';
 import type { SteamBanLookup } from '../steam/ban-lookup';
 
 /**
- * App-level shared state, kept at the leaf tier (imports only constants + storage)
- * so that feed/highlight/cbl/profile modules can read it without importing the
- * lifecycle orchestrator in app/routing — which is what breaks the apparent
- * highlight ↔ routing and feed ↔ main import cycles.
+ * App-level shared state, kept at the leaf tier (constants, storage, theme
+ * defaults) so that feed/highlight/cbl/profile modules can read it without
+ * importing the lifecycle orchestrator in app/routing — which is what breaks
+ * the apparent highlight ↔ routing and feed ↔ main import cycles.
  */
+
+let themeChangeHandler: (() => void) | null = null;
 
 // --- Settings providers (read live from storage on each call) ---------------
 
@@ -27,6 +35,35 @@ export function getFeedFilter(): string {
 
 export function getColorRowsByBmFlags(): boolean {
   return storageGet<boolean>('colorRowsByBmFlags', true) !== false;
+}
+
+export function setColorRowsByBmFlags(enabled: boolean): void {
+  storageSet('colorRowsByBmFlags', enabled !== false);
+  if (themeChangeHandler) themeChangeHandler();
+}
+
+export function getThemeSettings(): ThemeSettings {
+  return mergeTheme(storageGet<Partial<ThemeSettings>>('theme', {}));
+}
+
+export function setThemeSettings(partial: Partial<ThemeSettings>): ThemeSettings {
+  const next = mergeTheme({ ...getThemeSettings(), ...partial });
+  storageSet('theme', next);
+  applyThemeCssVars(next);
+  if (themeChangeHandler) themeChangeHandler();
+  return next;
+}
+
+export function resetThemeSettings(): ThemeSettings {
+  storageSet('theme', {});
+  applyThemeCssVars(DEFAULT_THEME);
+  if (themeChangeHandler) themeChangeHandler();
+  return { ...DEFAULT_THEME };
+}
+
+/** Called after theme / flag-tint settings change so live rows can re-paint. */
+export function setThemeChangeHandler(handler: (() => void) | null): void {
+  themeChangeHandler = handler;
 }
 
 // --- Shared Steam ban lookup singleton --------------------------------------
