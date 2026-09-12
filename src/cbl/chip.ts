@@ -5,6 +5,7 @@ import {
   PROFILE_PATH_ATTR,
   cblSearchUrl,
 } from '../constants';
+import { extractSteamId64FromRow } from '../dom/parsing';
 import { cblDetailParts, cblHasReputationOrRiskRating, computeCblChipSeverity01 } from './severity';
 import type { CblPayload, CblRatingData } from '../types';
 import type { CblReputationService } from './service';
@@ -87,6 +88,8 @@ export const CblRatingChip = {
     if (!data || data.kind === 'error' || data.kind === 'notFound') return;
     if (!cblHasReputationOrRiskRating(data)) return;
     if (!nameCol.isConnected || !anchor.isConnected) return;
+    const row = nameCol.closest<HTMLElement>('div[data-session]');
+    if (!row || extractSteamId64FromRow(row) !== steamId64 || !nameCol.contains(anchor)) return;
     if (nameCol.querySelector('[' + CBL_FOR_ATTR + '="' + steamId64 + '"]')) return;
 
     nameCol.classList.add('bss-toolkit-name-row');
