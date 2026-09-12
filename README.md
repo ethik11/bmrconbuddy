@@ -5,7 +5,7 @@ A [Tampermonkey](https://www.tampermonkey.net/) userscript for Squad server admi
 reputation chips, colored feed lines, admin-tag name colors, player/feed filters, BM-flag row
 tints, and a profile-page "Copy Player Info" + note-template menu.
 
-> **Version 1.7.9** · MIT · any Battlemetrics RCON server dashboard plus all player profile pages.
+> **Version 1.8.0** · MIT · any Battlemetrics RCON server dashboard plus all player profile pages.
 
 The script is written as small TypeScript modules and bundled into a single `.user.js` with
 [Vite](https://vitejs.dev/) + [vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey).
