@@ -10,6 +10,7 @@ import { ProfilePageRunner } from '../profile/scheduler';
 import { SteamBanLookup } from '../steam/ban-lookup';
 import { MATCHED_SERVER_PATH_RE } from '../server-config';
 import { cancelSelfCheck, scheduleSelfCheck } from './self-check';
+import { applyServerIdentity, clearServerIdentity } from './server-identity';
 import { getFeedFilter, getHighlightRules, getPlayerFilter, setSteamBanLookup } from './state';
 
 /**
@@ -69,6 +70,7 @@ export function applyBattlemetricsRoute(): void {
   const isOurServer = MATCHED_SERVER_PATH_RE.test(path);
 
   if (isProfile) {
+    clearServerIdentity();
     teardownServerDashboard();
     ensureProfilePageCblService().loadCache();
     ProfilePageRunner.start();
@@ -93,6 +95,7 @@ export function applyBattlemetricsRoute(): void {
   for (let c = 0; c < copyRoots.length; c++) copyRoots[c].remove();
 
   if (isOurServer) {
+    applyServerIdentity(path);
     if (bmToolkitServer.players && bmToolkitServer.feed) {
       bmToolkitServer.players.prepareForSpaRescan();
       bmToolkitServer.feed.prepareForSpaRescan();
@@ -101,6 +104,7 @@ export function applyBattlemetricsRoute(): void {
     }
     scheduleSelfCheck('server');
   } else {
+    clearServerIdentity();
     cancelSelfCheck();
     teardownServerDashboard();
   }

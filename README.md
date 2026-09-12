@@ -5,7 +5,7 @@ A [Tampermonkey](https://www.tampermonkey.net/) userscript for Squad server admi
 reputation chips, colored feed lines, admin-tag name colors, player/feed filters, BM-flag row
 tints, and a profile-page "Copy Player Info" + note-template menu.
 
-> **Version 1.7.9** · MIT · scoped to one server dashboard plus all player profile pages.
+> **Version 1.7.9** · MIT · any Battlemetrics RCON server dashboard plus all player profile pages.
 
 The script is written as small TypeScript modules and bundled into a single `.user.js` with
 [Vite](https://vitejs.dev/) + [vite-plugin-monkey](https://github.com/lisonge/vite-plugin-monkey).
@@ -22,10 +22,11 @@ Installing it is still just "add one file to Tampermonkey" — the module split 
 | **Filters**         | Substring or `/regex/flags` filtering of both the player list and the feed.                                                                                                                 |
 | **Highlight rules** | Built-in feed border rules (warn/trigger/kick) plus stored, user-configurable player/feed rules.                                                                                            |
 | **Profile actions** | On the Overview tab: "Copy Player Info" (name/Steam64/EOS, Crime/Time from the latest ban) and a Warn/Kick "Note Menu" that fills the note editor.                                          |
+| **Server identity** | 4px left accent bar on every dashboard (teal NL #1, gold NL #2, slate otherwise) plus a named header pill on the two Northern Lights servers. Feed colors stay the same everywhere.         |
 
 **Supported pages** (`@match`):
 
-- `https://www.battlemetrics.com/rcon/servers/34935347*` — connected players + live feed
+- `https://www.battlemetrics.com/rcon/servers/*` — connected players + live feed on any RCON server
 - `https://www.battlemetrics.com/rcon/players/*` — player profile pages
 
 ## Install (users)
@@ -39,11 +40,9 @@ Installing it is still just "add one file to Tampermonkey" — the module split 
 Prefer to build it yourself? `pnpm install && pnpm build`, then open `dist/bmr-con-buddy.user.js`
 (see [Development](#development)).
 
-### Targeting a different server
-
-The server id `34935347` is single-sourced in [`src/server-config.ts`](src/server-config.ts). Change
-`SERVER_ID` there and rebuild — both the `@match` header and the runtime SPA route check update
-together.
+Known dashboard accents (teal / gold) are listed in [`src/server-config.ts`](src/server-config.ts).
+Any other numeric `/rcon/servers/<id>` still gets the toolkit, with a slate left bar and no named
+pill.
 
 ## Development
 
@@ -68,12 +67,13 @@ the banner never drifts from the code — bump the version in `package.json` onl
 ```
 src/
   main.ts                 # entry point (the only module with top-level side effects)
-  server-config.ts        # SERVER_ID + @match patterns + route regex (single source)
+  server-config.ts        # @match patterns + route regex + known-server accents
   constants.ts            # storage prefix, all data-bss-* markers, id regexes, default rules
   types.ts                # shared interfaces (ParsedPlayerRow, HighlightRule, CblPayload, …)
   app/
     state.ts              # settings providers + shared-singleton accessors (keystone; leaf tier)
     routing.ts            # SPA route switch, dashboard lifecycle, history.pushState watcher
+    server-identity.ts    # per-server left-bar + NL pill chrome
     self-check.ts         # warns (once, after settle) when expected DOM hooks are missing
   platform/
     storage.ts            # GM_getValue/GM_setValue wrappers

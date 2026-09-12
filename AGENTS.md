@@ -46,8 +46,10 @@ These were deliberate in the original and are load-bearing:
   a `.css` file.
 - **All `data-bss-*` attribute names live in `src/constants.ts`.** Never redefine one inline — drift
   causes duplicate DOM injection.
-- **Server id `34935347` is single-sourced** in `src/server-config.ts` (`SERVER_ID`); the `@match`
-  header and the runtime route regex both derive from it.
+- **`@match` is any RCON server** (`https://www.battlemetrics.com/rcon/servers/*`) plus all player
+  profiles. The runtime guard in `src/server-config.ts` is `/rcon/servers/<digits>` so the servers
+  index does not start the dashboard. Known-id accents (NL #1 teal, NL #2 gold) live in the same
+  module; do not hardcode those ids in routing or CSS.
 - **Timing constants** (400/50/300/750/60/350/40/200 ms) and the three separate MutationObservers
   are behaviour — keep them. The `history.pushState/replaceState` patch must run exactly once.
 - **`@grant` is autoGrant; `@version` comes from `package.json`.** Never hand-edit the banner — edit
@@ -59,8 +61,8 @@ Vitest with `environment: 'jsdom'`; `vitest.config.ts` aliases `$` → `test/moc
 GM). Explicit imports from `vitest` (no globals). Tiers:
 
 - **Pure** (no DOM/GM): severity math, `mapCblResponse`, `matchesFilter`, `matchPlayer`, note
-  templates, copy-info formatting, admin-tag detection.
-- **jsdom fixtures**: `dom/parsing`, `profile/identifiers`, `cbl/chip`.
+  templates, copy-info formatting, admin-tag detection, `parseServerIdFromPath` / identity lookup.
+- **jsdom fixtures**: `dom/parsing`, `profile/identifiers`, `cbl/chip`, `app/server-identity`.
 - **Async services**: `cbl/service` via `vi.useFakeTimers()` + `vi.spyOn(CblGraphqlClient, …)`.
 
 Least-covered area is the observer/timer orchestration in `panels/*` and `profile/scheduler` — add

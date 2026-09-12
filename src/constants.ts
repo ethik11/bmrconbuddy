@@ -21,10 +21,15 @@ export const CBL_PENDING_ATTR = 'data-bss-cbl-pending'; // profile header chip i
 export const PROFILE_HEADER_CBL_ATTR = 'data-bss-profile-header-cbl';
 export const PROFILE_PATH_ATTR = 'data-bss-profile-path';
 export const PROFILE_OVERVIEW_ACTIONS_ATTR = 'data-bss-profile-overview-actions';
+export const SERVER_IDENTITY_ATTR = 'data-bss-server-identity'; // NL #1 / NL #2 header pill
 
 // --- CSS class names --------------------------------------------------------
 export const ADMIN_TAG_NAME_CLASS = 'bss-toolkit-admin-tag-name';
 export const ADMIN_TAG_NAME_COLOR = '#00fff7';
+export const SERVER_ACCENT_CLASS = 'bss-toolkit-has-server-accent';
+export const SERVER_PILL_CLASS = 'bss-toolkit-server-pill';
+export const SERVER_H1_WITH_PILL_CLASS = 'bss-toolkit-server-h1-with-pill';
+export const SERVER_ACCENT_VAR = '--bss-server-accent';
 
 /** Row classes for Battlemetrics-derived row tint (cleared before re-apply). */
 export const BM_FLAG_ROW_CLASSES = [
